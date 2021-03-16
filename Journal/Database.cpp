@@ -1,5 +1,7 @@
 #include "Database.h"
 #include <sstream>
+#include <algorithm>
+#include "Exception.h"
 
 
 //***	ENTRY STUFF		***//
@@ -39,12 +41,37 @@ Database::Database(std::wstring fn)
 	}
 }
 
+Database& Database::operator=(const Database& rhs)
+{
+	entries.clear();
+	filename = rhs.filename;
+	for (const Entry e : rhs.entries)
+	{
+		entries.push_back(e);
+	}
+	return *this;
+}
+
 Database::~Database()
 {
 	if(!SaveFile(filename)) 
 	{
-		throw Exception("Couldn't save file on a disk.");
+		throw Exception(L"Couldn't save file on a disk.");
 	}
+}
+
+std::list<Database::Entry> Database::GetEntry(Date date) const
+{
+	std::list<Entry> foundList;
+	std::list<Entry>::const_iterator iter = entries.begin();
+	while (iter != entries.end())
+	{
+		if (iter->GetDate() == date)
+		{
+			foundList.push_back(*iter);
+		}
+	}
+	return foundList;
 }
 
 //*****************************//
