@@ -28,6 +28,7 @@ public:
 
 private:
 	std::list<Entry> entries;
+	std::wstring filename;
 
 	bool LoadFile(std::wstring filename);
 	bool SaveFile(std::wstring filename);

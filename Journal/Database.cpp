@@ -29,9 +29,22 @@ std::wstring Database::Entry::GetFormattedEntry() const
 
 
 //***	DATABASE STUFF		***//
-Database::Database()
+Database::Database(std::wstring fn)
 {
-	LoadFile()
+	filename = fn;
+
+	if (!LoadFile(filename))
+	{
+		throw "Data file wasn't found. Creating new database.";
+	}
+}
+
+Database::~Database()
+{
+	if(!SaveFile(filename)) 
+	{
+		throw Exception("Couldn't save file on a disk.");
+	}
 }
 
 //*****************************//
