@@ -27,8 +27,8 @@ public:
 	int GetMinute() const;
 	int GetSecond() const;
 
-	bool operator==(const Date& rhs);
-	bool operator!=(const Date& rhs);
+	bool operator==(const Date& rhs) const;
+	bool operator!=(const Date& rhs) const;
 
 	void SetCurrentDate();
 	std::wstring GetFormattedShort() const;

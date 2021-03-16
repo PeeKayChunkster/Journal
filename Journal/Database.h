@@ -12,6 +12,9 @@ public:
 		std::wstring text;
 		Date date;
 	public:
+		bool operator==(const Entry& rhs) const;
+		bool operator!=(const Entry& rhs) const;
+
 		std::wstring GetName() const;
 		std::wstring GetText() const;
 		Date GetDate() const;
@@ -23,7 +26,9 @@ public:
 	~Database();
 	Database& operator=(const Database&);
 
+	std::list<Entry> GetEntry(Entry entry) const;
 	std::list<Entry> GetEntry(Date date) const;
+	std::list<Entry> GetEntry(std::wstring  name) const;
 	bool PutEntry(Entry entry);
 
 private:

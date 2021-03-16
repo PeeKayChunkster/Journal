@@ -4,6 +4,16 @@
 #include "Exception.h"
 
 
+bool Database::Entry::operator==(const Entry& rhs) const
+{
+	return (name == rhs.name && text == rhs.text && date == rhs.date);
+}
+
+bool Database::Entry::operator!=(const Entry& rhs) const
+{
+	return !(*this == rhs);
+}
+
 //***	ENTRY STUFF		***//
 std::wstring Database::Entry::GetName() const
 {
@@ -60,6 +70,20 @@ Database::~Database()
 	}
 }
 
+std::list<Database::Entry> Database::GetEntry(Entry entry) const
+{
+	std::list<Entry> foundList;
+	std::list<Entry>::const_iterator iter = entries.begin();
+	while (iter != entries.end())
+	{
+		if (*iter == entry)
+		{
+			foundList.push_back(*iter);
+		}
+	}
+	return foundList;
+}
+
 std::list<Database::Entry> Database::GetEntry(Date date) const
 {
 	std::list<Entry> foundList;
@@ -72,6 +96,16 @@ std::list<Database::Entry> Database::GetEntry(Date date) const
 		}
 	}
 	return foundList;
+}
+
+std::list<Entry> Database::GetEntry(std::wstring name) const
+{
+	return std::list<Entry>();
+}
+
+bool Database::PutEntry(Entry entry)
+{
+	return false;
 }
 
 //*****************************//

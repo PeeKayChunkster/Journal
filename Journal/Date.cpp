@@ -7,7 +7,7 @@ Date::Date()
 	SetCurrentDate();
 }
 
-bool Date::operator==(const Date& rhs)
+bool Date::operator==(const Date& rhs) const
 {
 	return (year == rhs.year &&
 		month == rhs.month &&
@@ -17,7 +17,7 @@ bool Date::operator==(const Date& rhs)
 		second == rhs.second);
 }
 
-bool Date::operator!=(const Date& rhs)
+bool Date::operator!=(const Date& rhs) const
 {
 	return !(*this == rhs);
 }
