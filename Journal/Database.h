@@ -26,10 +26,10 @@ public:
 	~Database();
 	Database& operator=(const Database&);
 
-	std::list<Entry> GetEntry(Entry entry) const;
-	std::list<Entry> GetEntry(Date date) const;
-	std::list<Entry> GetEntry(std::wstring  name) const;
-	bool PutEntry(Entry entry);
+	std::list<Entry> GetEntry(const Entry entry) const;
+	std::list<Entry> GetEntry(const Date date) const;
+	std::list<Entry> GetEntry(const std::wstring name) const;
+	void PutEntry(Entry entry);
 
 private:
 	std::list<Entry> entries;

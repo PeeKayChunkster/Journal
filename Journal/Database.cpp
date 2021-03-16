@@ -1,8 +1,7 @@
 #include "Database.h"
 #include <sstream>
-#include <algorithm>
+#include <fstream>
 #include "Exception.h"
-
 
 bool Database::Entry::operator==(const Entry& rhs) const
 {
@@ -70,7 +69,7 @@ Database::~Database()
 	}
 }
 
-std::list<Database::Entry> Database::GetEntry(Entry entry) const
+std::list<Database::Entry> Database::GetEntry(const Entry entry) const
 {
 	std::list<Entry> foundList;
 	std::list<Entry>::const_iterator iter = entries.begin();
@@ -84,7 +83,7 @@ std::list<Database::Entry> Database::GetEntry(Entry entry) const
 	return foundList;
 }
 
-std::list<Database::Entry> Database::GetEntry(Date date) const
+std::list<Database::Entry> Database::GetEntry(const Date date) const
 {
 	std::list<Entry> foundList;
 	std::list<Entry>::const_iterator iter = entries.begin();
@@ -98,14 +97,70 @@ std::list<Database::Entry> Database::GetEntry(Date date) const
 	return foundList;
 }
 
-std::list<Entry> Database::GetEntry(std::wstring name) const
+std::list<Database::Entry> Database::GetEntry(const std::wstring name) const
 {
-	return std::list<Entry>();
+	std::list<Entry> foundList;
+	std::list<Entry>::const_iterator iter = entries.begin();
+	while (iter != entries.end())
+	{
+		if (iter->GetName() == name)
+		{
+			foundList.push_back(*iter);
+		}
+	}
+	return foundList;
 }
 
-bool Database::PutEntry(Entry entry)
+void Database::PutEntry(Entry entry)
 {
-	return false;
+	entries.emplace_back(entry);
+}
+
+bool Database::LoadFile(std::wstring filename)
+{
+	std::ifstream in(filename, std::ios::binary);
+	if (!in)
+	{
+		throw Exception(L"Could't load a file with name \"" + filename + L"\"");
+		return false;
+	}
+	
+	entries.clear();
+	int entrySize;
+	Entry buffer;
+	while (true)
+	{
+		in.read(reinterpret_cast<char*>(&entrySize), sizeof(int));
+		in.read(reinterpret_cast<char*>(&buffer), entrySize);
+		if (!in)
+		{
+			break;
+		}
+		entries.push_back(buffer);
+	}
+	in.close();
+	return true;
+}
+
+bool Database::SaveFile(std::wstring filename)
+{
+	std::ofstream out(filename, std::ios::binary);
+	if (!out)
+	{
+		throw Exception(L"Could't save a file with name \"" + filename + L"\"");
+		return false;
+	}
+
+	entries.clear();
+	int entrySize;
+	for(Entry& e : entries)
+	{
+		entrySize = sizeof(e);
+		out.write(reinterpret_cast<char*>(&entrySize), sizeof(int));
+		out.write(reinterpret_cast<char*>(&e), sizeof(e));
+	}
+	out.close();
+	return true;
 }
 
 //*****************************//
