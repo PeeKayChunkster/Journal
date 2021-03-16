@@ -1,6 +1,7 @@
 #pragma once
 #include "Date.h"
 #include <list>
+#include <optional>
 
 class Database
 {
@@ -26,10 +27,11 @@ public:
 	~Database();
 	Database& operator=(const Database&);
 
-	std::list<Entry> GetEntry(const Entry entry) const;
+	std::optional<Entry> GetEntry(const Entry& entry) const;
 	std::list<Entry> GetEntry(const Date date) const;
 	std::list<Entry> GetEntry(const std::wstring name) const;
-	void PutEntry(Entry entry);
+	void PutEntry(Entry& entry);
+	bool EraseEntry(Entry& entry);
 
 private:
 	std::list<Entry> entries;

@@ -16,7 +16,7 @@ public:
 		message = L"Exception!\n" + m;
 	}
 
-	std::wstring GetMessage()
+	std::wstring GetMessage() const
 	{
 		return message;
 	}

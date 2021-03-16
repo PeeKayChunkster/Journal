@@ -46,7 +46,7 @@ Database::Database(std::wstring fn)
 
 	if (!LoadFile(filename))
 	{
-		throw "Data file wasn't found. Creating new database.";
+		throw L"Data file wasn't found. Creating new database.";
 	}
 }
 
@@ -69,18 +69,17 @@ Database::~Database()
 	}
 }
 
-std::list<Database::Entry> Database::GetEntry(const Entry entry) const
+std::optional<Database::Entry> Database::GetEntry(const Entry& entry) const
 {
-	std::list<Entry> foundList;
 	std::list<Entry>::const_iterator iter = entries.begin();
 	while (iter != entries.end())
 	{
 		if (*iter == entry)
 		{
-			foundList.push_back(*iter);
+			return std::optional<Entry>(*iter);
 		}
 	}
-	return foundList;
+	return std::optional<Entry>();
 }
 
 std::list<Database::Entry> Database::GetEntry(const Date date) const
@@ -111,9 +110,23 @@ std::list<Database::Entry> Database::GetEntry(const std::wstring name) const
 	return foundList;
 }
 
-void Database::PutEntry(Entry entry)
+void Database::PutEntry(Entry& entry)
 {
 	entries.emplace_back(entry);
+}
+
+bool Database::EraseEntry(Entry& entry)
+{
+	std::list<Entry>::const_iterator iter = entries.begin();
+	while (iter != entries.end())
+	{
+		if (*iter == entry)
+		{
+			entries.erase(iter);
+			return true;
+		}
+	}
+	return false;
 }
 
 bool Database::LoadFile(std::wstring filename)
@@ -121,8 +134,15 @@ bool Database::LoadFile(std::wstring filename)
 	std::ifstream in(filename, std::ios::binary);
 	if (!in)
 	{
-		throw Exception(L"Could't load a file with name \"" + filename + L"\"");
-		return false;
+		if (in.bad())
+		{
+			throw Exception(L"Could't load a file with name \"" + filename + L"\"");
+			return false;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	
 	entries.clear();
