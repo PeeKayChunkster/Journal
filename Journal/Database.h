@@ -6,6 +6,8 @@
 class Database
 {
 public:
+
+	//***********CLASS ENTRY*************//
 	class Entry
 	{
 	private:
@@ -21,6 +23,7 @@ public:
 		Date GetDate() const;
 		std::wstring GetFormattedEntry() const;
 	};
+	//**********************************//
 
 	Database() = delete;
 	Database(std::wstring filename);
