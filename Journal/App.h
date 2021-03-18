@@ -6,7 +6,7 @@ class App
 private:
 
 	static constexpr char filename[] = "Data.dat";
-	static constexpr int code = 3;
+	static constexpr int code = 0;
 
 	class IO* pIOSystem;
 	Database* pDatabase;

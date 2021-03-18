@@ -8,12 +8,21 @@ void IOWinConsole::OutputString(std::string str)
 	std::cout << str;
 }
 
+void IOWinConsole::OutputSeparator(char separator, int numberOf)
+{
+	for (int i = 0; i < numberOf; i++)
+	{
+		std::cout << separator;
+	}
+	std::cout << std::endl;
+}
+
 void IOWinConsole::Start(Database* pD)
 {
 	pDatabase = pD;
 	while (true)
 	{
-		Clear(true);
+		Clear();
 		std::wcout << MAIN_MENU << '>';
 		char c;
 		c = _getch();
@@ -103,7 +112,13 @@ void IOWinConsole::PrintEntry()
 		dsf.month = Date::ValidMonth(month);
 		dsf.day = Date::ValidDay(day);
 		dsf.hour = Date::ValidHour(hour);
-		pDatabase->GetEntry(date, dsf);
+		auto list = pDatabase->GetEntry(date, dsf);
+		for (Database::Entry e : list)
+		{
+			OutputString(e.GetFormattedEntry());
+			OutputSeparator();
+		}
+		Clear(true);
 	}
 }
 

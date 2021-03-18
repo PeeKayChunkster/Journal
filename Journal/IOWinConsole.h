@@ -31,9 +31,11 @@ private:
 	void AddEntry();
 	void PrintEntry();
 	void Clear(bool waitForInput = false);
-	std::string GetInputString(const char delim, bool echo = true);
+	//std::string GetInputString(const char delim, bool echo = true);
 
 public:
 	virtual void OutputString(std::string) override;
 	virtual void Start(Database* pD) override;
+
+	void OutputSeparator(char separator = '-', int numberOf = 100);
 };

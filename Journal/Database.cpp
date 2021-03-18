@@ -43,7 +43,7 @@ void Database::Entry::SetText(std::string t)
 std::string Database::Entry::GetFormattedEntry() const
 {
 	std::ostringstream ss;
-	ss << date.GetFormattedLong() << GetName() << std::endl << GetText() << std::endl;
+	ss << date.GetFormattedLong() << "Name: \n" << GetName() << std::endl << "Text: \n" << GetText() << std::endl;
 	return ss.str();
 }
 
@@ -84,8 +84,8 @@ std::optional<Database::Entry> Database::GetEntry(const Entry& entry) const
 std::list<Database::Entry> Database::GetEntry(const Date date, const DateSearchFlags dsf) const
 {
 	std::list<Entry> foundList;
-	std::list<Entry>::const_iterator iter = entries.begin();
-	while (iter != entries.end())
+	std::list<Entry>::const_iterator iter;
+	for (iter = entries.begin(); iter != entries.end(); iter++)
 	{
 		if (dsf.year)
 		{
