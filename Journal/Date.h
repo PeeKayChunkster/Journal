@@ -27,10 +27,17 @@ public:
 	int GetMinute() const;
 	int GetSecond() const;
 
+	static bool ValidYear(const int);
+	static bool ValidMonth(const int);
+	static bool ValidDay(const int);
+	static bool ValidHour(const int);
+	static bool ValidMinute(const int);
+	static bool ValidSecond(const int);
+
 	bool operator==(const Date& rhs) const;
 	bool operator!=(const Date& rhs) const;
 
 	void SetCurrentDate();
-	std::wstring GetFormattedShort() const;
-	std::wstring GetFormattedLong() const;
+	std::string GetFormattedShort() const;
+	std::string GetFormattedLong() const;
 };

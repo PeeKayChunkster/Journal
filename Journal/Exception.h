@@ -4,19 +4,19 @@
 class Exception
 {
 private:
-	std::wstring message;
+	std::string message;
 
 public:
 	Exception()
 	{
-		message = L"Esception!\nMessage wasn't specified.";
+		message = "Esception!\nMessage wasn't specified.";
 	}
-	Exception(std::wstring m)
+	Exception(std::string m)
 	{
-		message = L"Exception!\n" + m;
+		message = "Exception!\n" + m;
 	}
 
-	std::wstring GetMessage() const
+	std::string GetMessage() const
 	{
 		return message;
 	}

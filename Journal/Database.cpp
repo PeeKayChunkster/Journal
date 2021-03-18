@@ -3,6 +3,8 @@
 #include <fstream>
 #include "Exception.h"
 
+//***	ENTRY STUFF		***//
+
 bool Database::Entry::operator==(const Entry& rhs) const
 {
 	return (name == rhs.name && text == rhs.text && date == rhs.date);
@@ -13,13 +15,12 @@ bool Database::Entry::operator!=(const Entry& rhs) const
 	return !(*this == rhs);
 }
 
-//***	ENTRY STUFF		***//
-std::wstring Database::Entry::GetName() const
+std::string Database::Entry::GetName() const
 {
 	return name;
 }
 
-std::wstring Database::Entry::GetText() const
+std::string Database::Entry::GetText() const
 {
 	return text;
 }
@@ -29,9 +30,19 @@ Date Database::Entry::GetDate() const
 	return date;
 }
 
-std::wstring Database::Entry::GetFormattedEntry() const
+void Database::Entry::SetName(std::string n)
 {
-	std::wostringstream ss;
+	name = n;
+}
+
+void Database::Entry::SetText(std::string t)
+{
+	text = t;
+}
+
+std::string Database::Entry::GetFormattedEntry() const
+{
+	std::ostringstream ss;
 	ss << date.GetFormattedLong() << GetName() << std::endl << GetText() << std::endl;
 	return ss.str();
 }
@@ -39,16 +50,12 @@ std::wstring Database::Entry::GetFormattedEntry() const
 //******************************//
 
 
-//***	DATABASE STUFF		***//
-Database::Database(std::wstring fn)
-{
-	filename = fn;
 
-	if (!LoadFile(filename))
-	{
-		throw L"Data file wasn't found. Creating new database.";
-	}
-}
+
+
+
+
+//***	DATABASE STUFF		***//
 
 Database& Database::operator=(const Database& rhs)
 {
@@ -59,14 +66,6 @@ Database& Database::operator=(const Database& rhs)
 		entries.push_back(e);
 	}
 	return *this;
-}
-
-Database::~Database()
-{
-	if(!SaveFile(filename)) 
-	{
-		throw Exception(L"Couldn't save file on a disk.");
-	}
 }
 
 std::optional<Database::Entry> Database::GetEntry(const Entry& entry) const
@@ -82,21 +81,54 @@ std::optional<Database::Entry> Database::GetEntry(const Entry& entry) const
 	return std::optional<Entry>();
 }
 
-std::list<Database::Entry> Database::GetEntry(const Date date) const
+std::list<Database::Entry> Database::GetEntry(const Date date, const DateSearchFlags dsf) const
 {
 	std::list<Entry> foundList;
 	std::list<Entry>::const_iterator iter = entries.begin();
 	while (iter != entries.end())
 	{
-		if (iter->GetDate() == date)
+		if (dsf.year)
 		{
-			foundList.push_back(*iter);
+			if (iter->GetDate().GetYear() == date.GetYear())
+			{
+				if (dsf.month)
+				{
+					if (iter->GetDate().GetMonth() == date.GetMonth())
+					{
+						if (dsf.day)
+						{
+							if (iter->GetDate().GetDay() == date.GetDay())
+							{
+								if (dsf.hour)
+								{
+									if (iter->GetDate().GetHour() == date.GetHour())
+									{
+										foundList.push_back(*iter);
+									}
+								}
+								else
+								{
+									foundList.push_back(*iter);
+								}
+							}
+						}
+						else
+						{
+							foundList.push_back(*iter);
+						}
+					}
+				}
+				else
+				{
+					foundList.push_back(*iter);
+				}
+			}
 		}
 	}
 	return foundList;
 }
 
-std::list<Database::Entry> Database::GetEntry(const std::wstring name) const
+std::list<Database::Entry> Database::GetEntry(const std::string name) const
 {
 	std::list<Entry> foundList;
 	std::list<Entry>::const_iterator iter = entries.begin();
@@ -129,58 +161,91 @@ bool Database::EraseEntry(Entry& entry)
 	return false;
 }
 
-bool Database::LoadFile(std::wstring filename)
+bool Database::LoadFile(std::string filename, const int key)
 {
 	std::ifstream in(filename, std::ios::binary);
 	if (!in)
 	{
 		if (in.bad())
 		{
-			throw Exception(L"Could't load a file with name \"" + filename + L"\"");
+			throw Exception("Could't load a file with name \"" + filename + "\"");
 			return false;
 		}
 		else
 		{
-			return false;
+			load_fail = true;
+			return false;	// could not find file
 		}
 	}
 	
 	entries.clear();
 	int entrySize;
-	Entry buffer;
 	while (true)
 	{
+		Entry* buffer = new Entry();
 		in.read(reinterpret_cast<char*>(&entrySize), sizeof(int));
-		in.read(reinterpret_cast<char*>(&buffer), entrySize);
+		in.read(reinterpret_cast<char*>(buffer), entrySize);
+
+		if (key != 0)	// Decode entry
+		{
+			buffer->SetName(DecodeString(buffer->GetName(), key));
+			buffer->SetText(DecodeString(buffer->GetText(), key));
+		}
+
 		if (!in)
 		{
 			break;
 		}
-		entries.push_back(buffer);
+		entries.push_back(*buffer);
 	}
 	in.close();
 	return true;
 }
 
-bool Database::SaveFile(std::wstring filename)
+bool Database::SaveFile(std::string filename, const int code)
 {
+	if (entries.size() == 0) return true;
+
 	std::ofstream out(filename, std::ios::binary);
 	if (!out)
 	{
-		throw Exception(L"Could't save a file with name \"" + filename + L"\"");
+		throw Exception("Could't save a file with name \"" + filename + "\"");
 		return false;
 	}
 
-	entries.clear();
 	int entrySize;
 	for(Entry& e : entries)
 	{
+		if (code != 0)	// code entry strings
+		{
+			e.SetName(CodeString(e.GetName(), code));
+			e.SetText(CodeString(e.GetText(), code));
+		}
+
 		entrySize = sizeof(e);
 		out.write(reinterpret_cast<char*>(&entrySize), sizeof(int));
 		out.write(reinterpret_cast<char*>(&e), sizeof(e));
 	}
 	out.close();
 	return true;
+}
+
+std::string Database::CodeString(std::string str, const int code)
+{
+	for (char& c : str)
+	{
+		c += code;
+	}
+	return str;
+}
+
+std::string Database::DecodeString(std::string str, const int key)
+{
+	for (char& c : str)
+	{
+		c -= key;
+	}
+	return str;
 }
 
 //*****************************//
